@@ -16,6 +16,9 @@
         <module>money-transfer-service</module>
 		<module>ledger-service</module>
 		<module>notification-service</module>
+        <module>config-server</module>
+        <module>gateway</module>
+        <module>discovery</module>
     </modules>
     
     <properties>
