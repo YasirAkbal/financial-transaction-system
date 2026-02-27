@@ -31,7 +31,7 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
 
             filterChain.doFilter(request, response);
         } finally {
-            MDC.remove(GeneralConstants.corrId); //runs after the transaction is committed
+            MDC.remove(GeneralConstants.corrId); //runs right before http request returns
         }
     }
 }

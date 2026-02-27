@@ -1,9 +1,10 @@
 package com.yasirakbal.accountservice.application.publisher;
 
-import com.yasirakbal.accountservice.application.event.BalanceCreditedIntegrationEvent;
-import com.yasirakbal.accountservice.domain.event.BalanceCreditedEvent;
-import com.yasirakbal.accountservice.shared.constant.GeneralConstants;
-import org.slf4j.MDC;
+import com.yasirakbal.accountservice.application.event.AccountCreatedIntegrationEvent;
+import com.yasirakbal.accountservice.application.event.AccountCreditedIntegrationEvent;
+import com.yasirakbal.accountservice.domain.event.AccountCreatedEvent;
+import com.yasirakbal.accountservice.domain.event.AccountCreditedEvent;
+import com.yasirakbal.accountservice.domain.event.AccountDebitedEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
@@ -17,9 +18,21 @@ public class AccountEventPublisher {
     private static final String TOPIC = "account-events";
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void publishToKafka(BalanceCreditedEvent domainEvent) {
+    public void publishToKafka(AccountCreatedEvent domainEvent) {
 
-        var integrationEvent = new BalanceCreditedIntegrationEvent(
+        var integrationEvent = new AccountCreatedIntegrationEvent(
+                domainEvent.getCorrelationId(),
+                domainEvent.getAccountId(),
+                domainEvent.getCustomerId()
+        );
+
+        kafka.send(TOPIC, domainEvent.getAccountId().toString(), integrationEvent);
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void publishToKafka(AccountCreditedEvent domainEvent) {
+
+        var integrationEvent = new AccountCreditedIntegrationEvent(
                 domainEvent.getCreditedAccountId(),
                 domainEvent.getDebitedAccountId(),
                 domainEvent.getCreditedCustomerId(),
@@ -29,6 +42,22 @@ public class AccountEventPublisher {
                 domainEvent.getCorrelationId()
         );
 
-        kafka.send("TOPIC", domainEvent.getCreditedAccountId().toString(), integrationEvent);
+        kafka.send(TOPIC, domainEvent.getCreditedAccountId().toString(), integrationEvent);
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void publishToKafka(AccountDebitedEvent domainEvent) {
+
+        var integrationEvent = new AccountCreditedIntegrationEvent(
+                domainEvent.getCreditedAccountId(),
+                domainEvent.getDebitedAccountId(),
+                domainEvent.getCreditedCustomerId(),
+                domainEvent.getDebitedCustomerId(),
+                domainEvent.getAmount().amount(),
+                domainEvent.getAmount().currency(),
+                domainEvent.getCorrelationId()
+        );
+
+        kafka.send(TOPIC, domainEvent.getDebitedAccountId().toString(), integrationEvent);
     }
 }

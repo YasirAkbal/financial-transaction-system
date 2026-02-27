@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Getter
 public abstract class BaseIntegrationEvent {
     private final UUID id;
     private final LocalDateTime occurredOn;
@@ -18,6 +19,4 @@ public abstract class BaseIntegrationEvent {
         this.correlationId = correlationId;
         this.eventType = this.getClass().getSimpleName();
     }
-
-
 }

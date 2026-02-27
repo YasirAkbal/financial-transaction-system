@@ -2,14 +2,11 @@ package com.yasirakbal.accountservice.domain.event;
 
 import com.yasirakbal.accountservice.domain.valueobject.Money;
 import com.yasirakbal.accountservice.shared.domain.BaseDomainEvent;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
-public class BalanceCreditedEvent extends BaseDomainEvent {
+public class AccountCreditedEvent extends BaseDomainEvent {
 
     private final UUID creditedAccountId;
 
@@ -21,7 +18,7 @@ public class BalanceCreditedEvent extends BaseDomainEvent {
 
     private final Money amount;
 
-    public BalanceCreditedEvent(String correlationId, UUID creditedAccountId, UUID debitedAccountId, UUID creditedCustomerId, UUID debitedCustomerId, Money amount) {
+    public AccountCreditedEvent(String correlationId, UUID creditedAccountId, UUID debitedAccountId, UUID creditedCustomerId, UUID debitedCustomerId, Money amount) {
         super(correlationId);
         this.creditedAccountId = creditedAccountId;
         this.debitedAccountId = debitedAccountId;

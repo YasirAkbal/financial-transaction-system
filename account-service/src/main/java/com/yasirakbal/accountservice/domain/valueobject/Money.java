@@ -21,16 +21,28 @@ public record Money(BigDecimal amount, Currency currency) {
     }
 
     public Money add(Money other) {
-        if (!this.currency.equals(other.currency)) {
-            throw new IllegalArgumentException("Different currencies cannot be combined.");
-        }
+        validateCurrencies(other);
         return new Money(this.amount.add(other.amount), this.currency);
     }
 
     public Money subtract(Money other) {
+        validateCurrencies(other);
+        return new Money(this.amount.subtract(other.amount), this.currency);
+    }
+
+    public boolean isLessThan(Money other) {
+        validateCurrencies(other);
+        return this.amount().compareTo(other.amount()) < 0;
+    }
+
+    public boolean isGreaterThan(Money other) {
+        validateCurrencies(other);
+        return this.amount().compareTo(other.amount()) > 0;
+    }
+
+    private void validateCurrencies(Money other) {
         if (!this.currency.equals(other.currency)) {
             throw new IllegalArgumentException("Different currencies cannot be combined.");
         }
-        return new Money(this.amount.subtract(other.amount), this.currency);
     }
 }
