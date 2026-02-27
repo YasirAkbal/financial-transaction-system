@@ -6,24 +6,32 @@ spring:
     name: ledger-service
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/customer_ledger
+    url: jdbc:postgresql://postgres:5432/ledger_service
     username: username
     password: password
     driver-class-name: org.postgresql.Driver
 
   jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
     show-sql: true
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: kafka:9092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
     consumer:
-      group-id: customer-ledger-group
+      group-id: ledger-service-group
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "*"
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discovery:8761/eureka/
+  instance:
+    prefer-ip-address: true

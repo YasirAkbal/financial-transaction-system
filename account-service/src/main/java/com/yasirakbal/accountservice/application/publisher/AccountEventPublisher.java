@@ -2,6 +2,7 @@ package com.yasirakbal.accountservice.application.publisher;
 
 import com.yasirakbal.accountservice.application.event.AccountCreatedIntegrationEvent;
 import com.yasirakbal.accountservice.application.event.AccountCreditedIntegrationEvent;
+import com.yasirakbal.accountservice.application.event.AccountDebitedIntegrationEvent;
 import com.yasirakbal.accountservice.domain.event.AccountCreatedEvent;
 import com.yasirakbal.accountservice.domain.event.AccountCreditedEvent;
 import com.yasirakbal.accountservice.domain.event.AccountDebitedEvent;
@@ -48,7 +49,7 @@ public class AccountEventPublisher {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void publishToKafka(AccountDebitedEvent domainEvent) {
 
-        var integrationEvent = new AccountCreditedIntegrationEvent(
+        var integrationEvent = new AccountDebitedIntegrationEvent(
                 domainEvent.getCreditedAccountId(),
                 domainEvent.getDebitedAccountId(),
                 domainEvent.getCreditedCustomerId(),
