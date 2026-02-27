@@ -1,6 +1,6 @@
 package com.yasirakbal.accountservice.shared.filter;
 
-import com.yasirakbal.accountservice.shared.constant.GeneralConstants;
+import common.constant.GeneralConstants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -31,31 +31,4 @@ public class AccountController {
                 .body(AccountResponse.fromEntity(createdAccount));
     }
 
-    @PostMapping("/{id}/debit")
-    public ResponseEntity<Void> debit(@PathVariable UUID id, @Valid @RequestBody DebitRequest request) {
-
-        accountAppService.debit(
-                id,
-                request.targetAccountId(),
-                request.targetCustomerId(),
-                request.amount(),
-                request.currency()
-        );
-
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/{id}/credit")
-    public ResponseEntity<Void> credit(@PathVariable UUID id, @Valid @RequestBody CreditRequest request) {
-
-        accountAppService.credit(
-                id,
-                request.sourceAccountId(),
-                request.sourceCustomerId(),
-                request.amount(),
-                request.currency()
-        );
-
-        return ResponseEntity.ok().build();
-    }
 }
