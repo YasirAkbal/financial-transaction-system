@@ -1,4 +1,4 @@
-package com.yasirakbal.accountservice.shared.integration;
+package common.event;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

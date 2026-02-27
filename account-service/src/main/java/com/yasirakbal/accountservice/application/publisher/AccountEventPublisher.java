@@ -1,11 +1,12 @@
 package com.yasirakbal.accountservice.application.publisher;
 
-import com.yasirakbal.accountservice.application.event.AccountCreatedIntegrationEvent;
-import com.yasirakbal.accountservice.application.event.AccountCreditedIntegrationEvent;
-import com.yasirakbal.accountservice.application.event.AccountDebitedIntegrationEvent;
+
 import com.yasirakbal.accountservice.domain.event.AccountCreatedEvent;
 import com.yasirakbal.accountservice.domain.event.AccountCreditedEvent;
 import com.yasirakbal.accountservice.domain.event.AccountDebitedEvent;
+import common.event.AccountCreatedIntegrationEvent;
+import common.event.AccountCreditedIntegrationEvent;
+import common.event.AccountDebitedIntegrationEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;

@@ -1,6 +1,4 @@
-package com.yasirakbal.accountservice.application.event;
-
-import com.yasirakbal.accountservice.shared.integration.BaseIntegrationEvent;
+package common.event;
 import lombok.Getter;
 
 import java.util.UUID;
