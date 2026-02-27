@@ -6,6 +6,7 @@ import com.yasirakbal.accountservice.domain.event.AccountDebitedEvent;
 import com.yasirakbal.accountservice.domain.valueobject.Money;
 import com.yasirakbal.accountservice.shared.domain.BaseAggregateRoot;
 import com.yasirakbal.accountservice.shared.util.AccountNumberGenerator;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -22,6 +23,7 @@ public class Account extends BaseAggregateRoot<Account> {
 
     private UUID customerId;
 
+    @Embedded
     private Money balance;
 
     protected Account() { }
