@@ -52,6 +52,7 @@ public class AccountService {
                 request.customerId(),
                 accountNumber,
                 Currency.getInstance(request.currency()),
+                request.initialBalance(),
                 corrId
         );
 
@@ -61,7 +62,7 @@ public class AccountService {
     }
 
     @Transactional
-    public void debit(UUID transactionId, UUID accountId, UUID targetId, UUID targetCustId, BigDecimal amount, String currency) {
+    public void debit(UUID transactionId, UUID accountId, UUID targetId, UUID targetCustId, BigDecimal amount, String currency, String corrId) {
         try {
             processedMessageRepository.save(ProcessedMessage.builder()
                     .transactionId(transactionId.toString())
@@ -78,12 +79,12 @@ public class AccountService {
         Account account = accountRepository.findByIdWithLock(accountId)
                 .orElseThrow(() -> new EntityNotFoundException("Account not found"));
 
-        account.debitAccount(targetId, targetCustId, Money.of(amount, currency), MDC.get(GeneralConstants.corrId));
+        account.debitAccount(targetId, targetCustId, Money.of(amount, currency), corrId);
         accountRepository.save(account);
     }
 
     @Transactional
-    public void credit(UUID transactionId, UUID accountId, UUID sourceId, UUID sourceCustId, BigDecimal amount, String currency) {
+    public void credit(UUID transactionId, UUID accountId, UUID sourceId, UUID sourceCustId, BigDecimal amount, String currency, String corrId) {
         try {
             processedMessageRepository.save(ProcessedMessage.builder()
                     .transactionId(transactionId.toString())
@@ -100,7 +101,7 @@ public class AccountService {
         Account account = accountRepository.findByIdWithLock(accountId)
                 .orElseThrow(() -> new EntityNotFoundException("Account not found"));
 
-        account.creditAccount(sourceId, sourceCustId, Money.of(amount, currency), MDC.get(GeneralConstants.corrId));
+        account.creditAccount(sourceId, sourceCustId, Money.of(amount, currency), corrId);
         accountRepository.save(account);
     }
 }

@@ -40,7 +40,8 @@ public class TransferCommandConsumer {
                     command.targetAccountId(),
                     command.targetCustomerId(),
                     command.amount(),
-                    command.currency()
+                    command.currency(),
+                    command.correlationId()
             );
             log.info("[Command] Debit is successful. transactionId={}", command.transactionId());
 
@@ -71,7 +72,8 @@ public class TransferCommandConsumer {
                     command.sourceAccountId(),
                     command.sourceCustomerId(),
                     command.amount(),
-                    command.currency()
+                    command.currency(),
+                    command.correlationId()
             );
             log.info("[Command] Credit is successful. transactionId={}", command.transactionId());
 
@@ -101,7 +103,8 @@ public class TransferCommandConsumer {
                     command.targetAccountId(),
                     command.targetCustomerId(),
                     command.amount(),
-                    command.currency()
+                    command.currency(),
+                    command.correlationId()
             );
 
             log.info("[Command] Compensation is successful. transactionId={}",

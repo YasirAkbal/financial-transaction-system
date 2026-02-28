@@ -1,10 +1,21 @@
 FROM eclipse-temurin:21-jdk-alpine AS builder
 WORKDIR /app
-COPY .mvn/ .mvn/
-COPY mvnw pom.xml ./
-RUN ./mvnw dependency:go-offline -q
-COPY src/ src/
-RUN ./mvnw package -DskipTests -q
+
+COPY pom.xml ./pom.xml
+COPY banking-common/ banking-common/
+
+COPY money-transfer-service/.mvn/ .mvn/
+COPY money-transfer-service/mvnw ./mvnw
+RUN chmod +x mvnw
+
+RUN ./mvnw install -N -q
+
+RUN ./mvnw install -f banking-common/pom.xml -q
+
+COPY money-transfer-service/pom.xml service-pom.xml
+RUN ./mvnw dependency:go-offline -f service-pom.xml -q
+COPY money-transfer-service/src/ src/
+RUN ./mvnw package -f service-pom.xml -DskipTests -q
 
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app

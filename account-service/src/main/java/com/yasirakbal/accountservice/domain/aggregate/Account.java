@@ -29,7 +29,7 @@ public class Account extends BaseAggregateRoot<Account> {
     protected Account() { }
 
 
-    public static Account create(UUID customerId, Long accountNumber, Currency currency, String correlationId) {
+    public static Account create(UUID customerId, Long accountNumber, Currency currency, BigDecimal initialBalance, String correlationId) {
         if (accountNumber == null || accountNumber <= 0) {
             throw new IllegalArgumentException("Invalid account number");
         }
@@ -37,7 +37,7 @@ public class Account extends BaseAggregateRoot<Account> {
         Account account = new Account();
         account.accountNumber = accountNumber;
         account.customerId = customerId;
-        account.balance = new Money(BigDecimal.ZERO, currency);
+        account.balance = new Money(initialBalance, currency);
 
         account.registerEvent(new AccountCreatedEvent(
                 correlationId,

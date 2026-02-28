@@ -42,7 +42,8 @@ public class AccountEventConsumer {
             return;
         }
 
-        transaction.markDebitCompleted();
+        transaction.markCreditSent();
+        transactionRepository.save(transaction);
 
         var creditCommand = new CreditCommand(
                 transaction.getId(),
@@ -53,8 +54,6 @@ public class AccountEventConsumer {
                 transaction.getAmount().currency().toString(),
                 event.getCorrelationId()
         );
-
-        transactionRepository.save(transaction);
 
         kafkaTemplate.send(
                 TRANSFER_COMMANDS,

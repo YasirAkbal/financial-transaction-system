@@ -12,5 +12,7 @@ public record CreateAccountRequest(
 
         @NotBlank(message = "Currency is required")
         @Size(min = 3, max = 3, message = "Currency must be 3 characters")
-        String currency
+        String currency,
+
+        BigDecimal initialBalance
 ) {}

@@ -74,10 +74,6 @@ public class Transaction extends BaseAggregateRoot<Transaction> {
         this.currentStep = TransferStep.DEBIT_SENT;
     }
 
-    public void markDebitCompleted() {
-        this.currentStep = TransferStep.DEBIT_COMPLETED;
-    }
-
     public void markCreditSent() {
         this.currentStep = TransferStep.CREDIT_SENT;
     }

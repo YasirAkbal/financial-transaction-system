@@ -14,7 +14,7 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     show-sql: true
 
   kafka:
@@ -22,12 +22,20 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: true
     consumer:
       group-id: money-transfer-group
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "*"
+        spring.json.use.type.headers: true
+        spring.json.type.mapping: >
+          AccountDebitedIntegrationEvent:common.event.AccountDebitedIntegrationEvent,
+          AccountCreditedIntegrationEvent:common.event.AccountCreditedIntegrationEvent,
+          AccountDebitFailedIntegrationEvent:common.event.AccountDebitFailedIntegrationEvent,
+          AccountCreditFailedIntegrationEvent:common.event.AccountCreditFailedIntegrationEvent
 
 eureka:
   client:

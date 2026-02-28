@@ -1,4 +1,4 @@
-package com.yasirakbal.accountservice.shared.filter;
+package com.yasirakbal.moneytransferservice.shared.filter;
 
 import common.constant.GeneralConstants;
 import jakarta.servlet.FilterChain;
