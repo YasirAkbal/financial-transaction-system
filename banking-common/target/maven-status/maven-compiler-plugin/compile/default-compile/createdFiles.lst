@@ -1,0 +1,11 @@
+common\command\CreditCommand.class
+common\event\AccountCreatedIntegrationEvent.class
+common\constant\GeneralConstants.class
+common\event\AccountCreditedIntegrationEvent.class
+common\event\AccountDebitedIntegrationEvent.class
+common\command\DebitCommand.class
+common\event\AccountCreditFailedIntegrationEvent.class
+common\event\AccountDebitFailedIntegrationEvent.class
+common\command\CompensateDebitCommand.class
+common\event\MoneyTransferCompletedIntegrationEvent.class
+common\event\BaseIntegrationEvent.class

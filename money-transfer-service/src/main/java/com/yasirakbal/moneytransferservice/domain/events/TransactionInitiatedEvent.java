@@ -10,15 +10,28 @@ import java.util.UUID;
 public class TransactionInitiatedEvent extends BaseDomainEvent {
     private final UUID transactionId;
     private final UUID sourceAccountId;
+    private final UUID sourceCustomerId;
     private final UUID targetAccountId;
+    private final UUID targetCustomerId;
     private final BigDecimal amount;
     private final String currency;
 
-    public TransactionInitiatedEvent(String correlationId, UUID transactionId, UUID sourceAccountId, UUID targetAccountId, BigDecimal amount, String currency) {
+    public TransactionInitiatedEvent(
+            String correlationId,
+            UUID transactionId,
+            UUID sourceAccountId,
+            UUID sourceCustomerId,
+            UUID targetAccountId,
+            UUID targetCustomerId,
+            BigDecimal amount,
+            String currency) {
+
         super(correlationId);
         this.transactionId = transactionId;
         this.sourceAccountId = sourceAccountId;
+        this.sourceCustomerId = sourceCustomerId;
         this.targetAccountId = targetAccountId;
+        this.targetCustomerId = targetCustomerId;
         this.amount = amount;
         this.currency = currency;
     }

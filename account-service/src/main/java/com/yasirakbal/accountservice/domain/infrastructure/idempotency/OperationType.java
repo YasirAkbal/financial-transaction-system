@@ -6,7 +6,10 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum OperationType {
-    DEBIT("Debit"), CREDIT("Credit"), CREATE("Create");
+    DEBIT("Debit"),
+    CREDIT("Credit"),
+    CREATE("Create"),
+    COMPENSATE("Compensate");
 
     private final String displayName;
 }

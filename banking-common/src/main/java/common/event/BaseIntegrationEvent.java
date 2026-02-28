@@ -8,10 +8,10 @@ import java.util.UUID;
 
 @Getter
 public abstract class BaseIntegrationEvent {
-    private final UUID id;
-    private final LocalDateTime occurredOn;
-    private final String correlationId;
-    private final String eventType;
+    protected final UUID id;
+    protected final LocalDateTime occurredOn;
+    protected final String correlationId;
+    protected final String eventType;
 
     protected BaseIntegrationEvent(String correlationId) {
         this.id = UUID.randomUUID();

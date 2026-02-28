@@ -4,6 +4,7 @@ import com.yasirakbal.moneytransferservice.domain.aggregate.Transaction;
 import com.yasirakbal.moneytransferservice.domain.infrastructure.repository.TransactionRepository;
 import com.yasirakbal.moneytransferservice.domain.valueobject.Money;
 import common.constant.GeneralConstants;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
@@ -20,17 +21,28 @@ public class TransactionService {
 
     @Transactional
     public Transaction makeTransaction(
-            UUID sourceAccountId, UUID sourceCustomerId, UUID targetAccountId, UUID targetCustomerId,
+            UUID sourceAccountId, UUID sourceCustomerId,
+            UUID targetAccountId, UUID targetCustomerId,
             BigDecimal amount, String currency
     ) {
 
         Transaction transaction = Transaction.create(
-                sourceAccountId,
-                targetAccountId,
+                sourceAccountId, sourceCustomerId,
+                targetAccountId, targetCustomerId,
                 Money.of(amount, currency),
                 MDC.get(GeneralConstants.corrId)
         );
 
+        transaction.markDebitSent();
+        transactionRepository.save(transaction);
 
+        return transaction;
+    }
+
+    @Transactional(readOnly = true)
+    public Transaction getTransaction(UUID transactionId) {
+        return transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Transaction not found: " + transactionId));
     }
 }

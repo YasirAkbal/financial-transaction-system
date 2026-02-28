@@ -97,8 +97,11 @@ services:
       context: ./account-service
       dockerfile: Dockerfile
     container_name: account-service
+    environment:
+      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
     ports:
       - "8081:8081"
+      - "5005:5005"
     networks:
       - microservices-net
     restart: on-failure
@@ -109,6 +112,7 @@ services:
         condition: service_healthy
       discovery:
         condition: service_started
+
 
   customer-service:
     build:
@@ -151,8 +155,11 @@ services:
       context: ./money-transfer-service
       dockerfile: Dockerfile
     container_name: money-transfer-service
+    environment:
+      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5006"
     ports:
       - "8084:8084"
+      - "5006:5006"
     networks:
       - microservices-net
     restart: on-failure
