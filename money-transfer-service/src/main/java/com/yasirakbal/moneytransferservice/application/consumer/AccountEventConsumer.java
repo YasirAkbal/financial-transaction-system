@@ -138,7 +138,7 @@ public class AccountEventConsumer {
         log.error("[Saga] CompensateDebitCommand sent. transactionId={}", transaction.getId());
     }
 
-    // ─── Yardımcı metot ──────────────────────────────────────────────────────
+
     private Transaction findTransaction(String correlationId) {
         return transactionRepository
                 .findByCorrelationId(correlationId)

@@ -1,6 +1,5 @@
-package com.yasirakbal.accountservice.domain.infrastructure.repository;
+package com.yasirakbal.accountservice.domain.infrastructure.idempotency;
 
-import com.yasirakbal.accountservice.domain.infrastructure.idempotency.ProcessedMessage;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

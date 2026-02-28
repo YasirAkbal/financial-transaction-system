@@ -2,10 +2,11 @@ package com.yasirakbal.accountservice.application.service;
 
 import com.yasirakbal.accountservice.application.dto.CreateAccountRequest;
 import com.yasirakbal.accountservice.domain.aggregate.Account;
+import com.yasirakbal.accountservice.domain.infrastructure.idempotency.IdempotencyService;
 import com.yasirakbal.accountservice.domain.infrastructure.idempotency.OperationType;
 import com.yasirakbal.accountservice.domain.infrastructure.idempotency.ProcessedMessage;
 import com.yasirakbal.accountservice.domain.infrastructure.repository.AccountRepository;
-import com.yasirakbal.accountservice.domain.infrastructure.repository.ProcessedMessageRepository;
+import com.yasirakbal.accountservice.domain.infrastructure.idempotency.ProcessedMessageRepository;
 import com.yasirakbal.accountservice.domain.valueobject.Money;
 import com.yasirakbal.accountservice.shared.util.AccountNumberGenerator;
 import common.constant.GeneralConstants;
@@ -29,19 +30,15 @@ import java.util.UUID;
 public class AccountService {
     private final AccountRepository accountRepository;
     private final AccountNumberGenerator accountNumberGenerator;
-    private final ProcessedMessageRepository processedMessageRepository;
+    private final IdempotencyService idempotencyService;
+    private static int count = 0;
 
     @Transactional
     public Account createAccount(CreateAccountRequest request) {
         String corrId = MDC.get(GeneralConstants.corrId);
 
         try {
-            processedMessageRepository.save(ProcessedMessage.builder()
-                    .transactionId(corrId)
-                    .operationType(OperationType.CREATE)
-                    .serviceName("account-service")
-                    .processedAt(LocalDateTime.now())
-                    .build());
+            idempotencyService.record(corrId, OperationType.CREATE, "account-service");
         } catch (DataIntegrityViolationException e) {
             log.info("Account creation already processed for corrId: {}", corrId);
             throw new IllegalArgumentException("The request is already processed");
@@ -64,14 +61,8 @@ public class AccountService {
     @Transactional
     public void debit(UUID transactionId, UUID accountId, UUID targetId, UUID targetCustId, BigDecimal amount, String currency, String corrId) {
         try {
-            processedMessageRepository.save(ProcessedMessage.builder()
-                    .transactionId(transactionId.toString())
-                    .operationType(OperationType.DEBIT)
-                    .serviceName("account-service")
-                    .processedAt(LocalDateTime.now())
-                    .build()
-            );
-        } catch(DataIntegrityViolationException exception) {
+            idempotencyService.record(corrId, OperationType.DEBIT, "account-service");
+        } catch (DataIntegrityViolationException e) {
             log.info("Debit already processed for {}", transactionId);
             return;
         }
@@ -85,17 +76,25 @@ public class AccountService {
 
     @Transactional
     public void credit(UUID transactionId, UUID accountId, UUID sourceId, UUID sourceCustId, BigDecimal amount, String currency, String corrId) {
+        credit(transactionId, accountId, sourceId, sourceCustId, amount, currency, corrId, OperationType.CREDIT);
+    }
+
+    @Transactional
+    public void compensateCredit(UUID transactionId, UUID accountId, UUID sourceId, UUID sourceCustId, BigDecimal amount, String currency, String corrId) {
+        credit(transactionId, accountId, sourceId, sourceCustId, amount, currency, corrId, OperationType.COMPENSATE);
+    }
+
+    private void credit(UUID transactionId, UUID accountId, UUID sourceId, UUID sourceCustId, BigDecimal amount, String currency, String corrId, OperationType operationType) {
         try {
-            processedMessageRepository.save(ProcessedMessage.builder()
-                    .transactionId(transactionId.toString())
-                    .operationType(OperationType.CREDIT)
-                    .serviceName("account-service")
-                    .processedAt(LocalDateTime.now())
-                    .build()
-            );
-        } catch(DataIntegrityViolationException exception) {
+            idempotencyService.record(corrId, operationType, "account-service");
+        } catch (DataIntegrityViolationException e) {
             log.info("Credit already processed for {}", transactionId);
             return;
+        }
+
+        if(count == 0) {
+            count++;
+            throw new IllegalArgumentException("Test case için yazdım xd");
         }
 
         Account account = accountRepository.findByIdWithLock(accountId)
