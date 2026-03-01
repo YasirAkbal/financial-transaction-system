@@ -51,6 +51,19 @@ services:
       timeout: 10s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - microservices-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # ─── Platform Services ─────────────────────────────────────────────────────
 
   config-server:
@@ -156,6 +169,7 @@ services:
     container_name: money-transfer-service
     environment:
       JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5006"
+      REDIS_HOST: redis
     ports:
       - "8084:8084"
       - "5006:5006"
@@ -169,6 +183,8 @@ services:
         condition: service_healthy
       discovery:
         condition: service_started
+      redis:
+        condition: service_healthy
 
   notification-service:
     build:
@@ -187,6 +203,21 @@ services:
         condition: service_healthy
       discovery:
         condition: service_started
+
+  fraud-service:
+    build:
+      context: .
+      dockerfile: fraud-service/Dockerfile
+    container_name: fraud-service
+    ports:
+      - "8086:8086"
+    networks:
+      - microservices-net
+    restart: on-failure
+    depends_on:
+      discovery:
+        condition: service_started
+
 
 volumes:
   postgres_data:

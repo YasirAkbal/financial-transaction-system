@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Currency;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -101,5 +102,9 @@ public class AccountService {
         }
 
         accountRepository.save(account);
+    }
+
+    public List<Account> getCustomerAccounts(UUID customerId) {
+        return accountRepository.findByCustomerId(customerId);
     }
 }

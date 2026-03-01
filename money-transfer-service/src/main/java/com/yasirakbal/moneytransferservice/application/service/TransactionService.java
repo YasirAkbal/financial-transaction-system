@@ -20,6 +20,7 @@ import java.util.UUID;
 @Slf4j
 public class TransactionService {
     private final TransactionRepository transactionRepository;
+    private final FraudService fraudService;
 
     @Transactional
     public Transaction makeTransaction(
@@ -27,6 +28,10 @@ public class TransactionService {
             UUID targetAccountId, UUID targetCustomerId,
             BigDecimal amount, String currency
     ) {
+
+        if (fraudService.isFraudulent(sourceAccountId, amount)) {
+            throw new IllegalArgumentException("Transaction flagged as fraudulent");
+        }
 
         String corrId = MDC.get(GeneralConstants.corrId);
 

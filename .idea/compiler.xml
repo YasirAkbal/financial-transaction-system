@@ -3,19 +3,6 @@
   <component name="CompilerConfiguration">
     <annotationProcessing>
       <profile default="true" name="Default" enabled="true" />
-      <profile name="Annotation profile for financial-transaction-system" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
-        </processorPath>
-        <module name="money-transfer-service" />
-        <module name="account-service" />
-        <module name="customer-service" />
-        <module name="notification-service" />
-        <module name="ledger-service" />
-      </profile>
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
@@ -25,6 +12,20 @@
         <module name="discovery" />
         <module name="gateway" />
       </profile>
+      <profile name="Annotation profile for financial-transaction-system" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
+        </processorPath>
+        <module name="fraud-service" />
+        <module name="money-transfer-service" />
+        <module name="account-service" />
+        <module name="customer-service" />
+        <module name="notification-service" />
+        <module name="ledger-service" />
+      </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
@@ -33,6 +34,7 @@
       <module name="config-server" options="-parameters" />
       <module name="customer-service" options="-parameters" />
       <module name="discovery" options="-parameters" />
+      <module name="fraud-service" options="-parameters" />
       <module name="gateway" options="-parameters" />
       <module name="ledger-service" options="-parameters" />
       <module name="money-transfer-service" options="-parameters" />
