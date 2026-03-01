@@ -1,5 +1,7 @@
 package com.yasirakbal.moneytransferservice.application.service;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -18,6 +20,8 @@ public class FraudService {
     private final WebClient.Builder webClientBuilder;
     private final RedisTemplate<String, Boolean> redisTemplate;
 
+    @CircuitBreaker(name = "fraudService", fallbackMethod = "fallbackFraudCheck")
+    @Retry(name = "fraudService")
     public boolean isFraudulent(UUID accountId, BigDecimal amount) {
         String cacheKey = "fraud:" + accountId + ":" + amount.stripTrailingZeros().toPlainString();
 
@@ -36,10 +40,15 @@ public class FraudService {
                 .block();
 
         boolean result = response != null && response.fraudulent();
-
         redisTemplate.opsForValue().set(cacheKey, result, Duration.ofMinutes(5));
-
         return result;
+    }
+
+
+    private boolean fallbackFraudCheck(UUID accountId, BigDecimal amount, Throwable t) {
+        log.error("Fraud service unavailable, failing safe. accountId={}, reason={}",
+                accountId, t.getMessage());
+        return true; // decline transaction
     }
 
     record FraudCheckRequest(UUID accountId, BigDecimal amount) {}
