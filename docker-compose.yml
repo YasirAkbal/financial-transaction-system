@@ -146,8 +146,8 @@ services:
 
   ledger-service:
     build:
-      context: ./ledger-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ledger-service/Dockerfile
     container_name: ledger-service
     ports:
       - "8083:8083"
@@ -188,8 +188,8 @@ services:
 
   notification-service:
     build:
-      context: ./notification-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: notification-service/Dockerfile
     container_name: notification-service
     ports:
       - "8085:8085"

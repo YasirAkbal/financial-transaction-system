@@ -17,6 +17,12 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "transaction_logs", indexes = {
+        @Index(name = "idx_id", columnList = "id"),
+        @Index(name = "idx_corrId", columnList = "corrId"),
+        @Index(name = "idx_sourceAccountId", columnList = "sourceAccountId"),
+        @Index(name = "idx_targetAccountId", columnList = "targetAccountId")
+})
 public class Ledger extends BaseEntity {
 
     @Column(nullable = false, updatable = false)

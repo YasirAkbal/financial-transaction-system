@@ -7,7 +7,10 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "customers")
+@Table(name = "customers", indexes = {
+        @Index(name = "idx_id", columnList = "id"),
+        @Index(name = "idx_email", columnList = "email")
+})
 @Getter
 @Setter
 @NoArgsConstructor

@@ -9,6 +9,7 @@ import com.yasirakbal.accountservice.shared.domain.BaseAggregateRoot;
 import com.yasirakbal.accountservice.shared.util.AccountNumberGenerator;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import lombok.Getter;
 
@@ -18,7 +19,11 @@ import java.util.UUID;
 
 @Getter
 @Entity
-@Table(name = "accounts")
+@Table(name = "accounts", indexes = {
+        @Index(name = "idx_id", columnList = "id"),
+        @Index(name = "idx_accountNumber", columnList = "accountNumber"),
+        @Index(name = "idx_customerId", columnList = "customerId")
+})
 public class Account extends BaseAggregateRoot<Account> {
     private Long accountNumber;
 

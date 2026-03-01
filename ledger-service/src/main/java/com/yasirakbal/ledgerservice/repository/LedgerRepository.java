@@ -7,10 +7,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface LedgerRepository extends JpaRepository<Ledger, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    Optional<Ledger> findByCorrelationIdAndLogType(String correlationId, LogType logType);
+    Optional<Ledger> findByCorrIdAndLogType(String correlationId, LogType logType);
+
+    List<Ledger> findAllByOrderByCreatedAtDesc();
 }

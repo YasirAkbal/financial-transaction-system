@@ -40,7 +40,7 @@ public class MoneyTransferEventConsumer {
     public void onMoneyTransferFailed(MoneyTransferFailedIntegrationEvent event) {
         Ledger ledger = Ledger.builder()
                 .corrId(event.getCorrelationId())
-                .logType(LogType.MONEY_TRANSFER_COMPLETED)
+                .logType(LogType.MONEY_TRANSFER_FAILED)
                 .amount(event.getAmount())
                 .currency(event.getCurrency())
                 .occurredOn(event.getOccurredOn())

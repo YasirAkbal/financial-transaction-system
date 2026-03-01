@@ -15,7 +15,14 @@ import java.util.UUID;
 
 @Getter
 @Entity
-@Table(name = "transfer_transactions")
+@Table(name = "transfer_transactions", indexes = {
+        @Index(name = "idx_id", columnList = "id"),
+        @Index(name = "idx_corrId", columnList = "correlationId"),
+        @Index(name = "idx_sourceAccountId", columnList = "sourceAccountId"),
+        @Index(name = "idx_targetAccountId", columnList = "targetAccountId"),
+        @Index(name = "idx_sourceCustomerId", columnList = "sourceCustomerId"),
+        @Index(name = "idx_targetCustomerId", columnList = "targetCustomerId")
+})
 public class Transaction extends BaseAggregateRoot<Transaction> {
 
     private UUID sourceAccountId;
