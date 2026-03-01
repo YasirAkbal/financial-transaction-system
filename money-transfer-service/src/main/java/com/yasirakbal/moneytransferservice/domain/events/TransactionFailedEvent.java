@@ -15,9 +15,11 @@ public class TransactionFailedEvent extends BaseDomainEvent {
     private final UUID sourceAccountId;
     private final UUID targetAccountId;
     private final BigDecimal amount;
+    private final String currency;
+
 
     public TransactionFailedEvent(String correlationId, UUID transactionId, String errorCode, String errorMessage,
-                                  String failedStep, UUID sourceAccountId, UUID targetAccountId, BigDecimal amount) {
+                                  String failedStep, UUID sourceAccountId, UUID targetAccountId, BigDecimal amount, String currency) {
         super(correlationId);
         this.transactionId = transactionId;
         this.errorCode = errorCode;
@@ -26,5 +28,6 @@ public class TransactionFailedEvent extends BaseDomainEvent {
         this.sourceAccountId = sourceAccountId;
         this.targetAccountId = targetAccountId;
         this.amount = amount;
+        this.currency = currency;
     }
 }

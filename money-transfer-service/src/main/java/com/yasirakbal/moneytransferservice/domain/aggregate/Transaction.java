@@ -103,7 +103,8 @@ public class Transaction extends BaseAggregateRoot<Transaction> {
                 correlationId, this.getId(), errorCode,
                 errorMessage, failedStep,
                 this.sourceAccountId, this.targetAccountId,
-                this.amount.amount()
+                this.amount.amount(),
+                this.amount.currency().toString()
         ));
     }
 }

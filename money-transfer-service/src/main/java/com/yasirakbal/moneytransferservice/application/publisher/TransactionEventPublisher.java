@@ -4,6 +4,8 @@ import com.yasirakbal.moneytransferservice.domain.events.TransactionCompletedEve
 import com.yasirakbal.moneytransferservice.domain.events.TransactionFailedEvent;
 import com.yasirakbal.moneytransferservice.domain.events.TransactionInitiatedEvent;
 import common.command.DebitCommand;
+import common.event.MoneyTransferCompletedIntegrationEvent;
+import common.event.MoneyTransferFailedIntegrationEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -46,14 +48,37 @@ public class TransactionEventPublisher {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onTransactionCompleted(TransactionCompletedEvent event) {
-        kafkaTemplate.send(TRANSFER_EVENTS, event.getTransactionId().toString(), event);
-        log.info("[Saga] Transfer completed. transactionId={}", event.getTransactionId());
+        var integrationEvent = new MoneyTransferCompletedIntegrationEvent(
+                event.getCorrelationId(),
+                event.getTransactionId(),
+                event.getSourceAccountId(),
+                event.getTargetAccountId(),
+                event.getAmount(),
+                event.getCurrency()
+        );
+
+        kafkaTemplate.send(TRANSFER_EVENTS, integrationEvent.getTransactionId().toString(), integrationEvent);
+
+        log.info("[Saga] Transfer completed. transactionId={}", integrationEvent.getTransactionId());
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onTransactionFailed(TransactionFailedEvent event) {
-        kafkaTemplate.send(TRANSFER_EVENTS, event.getTransactionId().toString(), event);
+        var integrationEvent = new MoneyTransferFailedIntegrationEvent(
+                event.getCorrelationId(),
+                event.getTransactionId(),
+                event.getSourceAccountId(),
+                event.getTargetAccountId(),
+                event.getAmount(),
+                event.getCurrency(),
+                event.getErrorCode(),
+                event.getErrorMessage(),
+                event.getFailedStep()
+        );
+
+        kafkaTemplate.send(TRANSFER_EVENTS, integrationEvent.getTransactionId().toString(), integrationEvent);
+
         log.warn("[Saga] Transfer failed. transactionId={}, reason={}",
-                event.getTransactionId(), event.getErrorMessage());
+                integrationEvent.getTransactionId(), integrationEvent.getErrorMessage());
     }
 }
