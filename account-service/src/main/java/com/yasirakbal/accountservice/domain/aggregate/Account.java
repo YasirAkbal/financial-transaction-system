@@ -2,6 +2,7 @@ package com.yasirakbal.accountservice.domain.aggregate;
 
 import com.yasirakbal.accountservice.domain.event.AccountCreatedEvent;
 import com.yasirakbal.accountservice.domain.event.AccountCreditedEvent;
+import com.yasirakbal.accountservice.domain.event.AccountDebitCompensatedEvent;
 import com.yasirakbal.accountservice.domain.event.AccountDebitedEvent;
 import com.yasirakbal.accountservice.domain.valueobject.Money;
 import com.yasirakbal.accountservice.shared.domain.BaseAggregateRoot;
@@ -75,6 +76,20 @@ public class Account extends BaseAggregateRoot<Account> {
                 this.getCustomerId(),
                 targetCustomerId,
                 this.balance
+        ));
+    }
+
+    public void compensateDebit(UUID targetAccountId, UUID targetCustomerId,
+                                Money amount, String correlationId) {
+        this.balance = this.balance.add(amount);
+
+        registerEvent(new AccountDebitCompensatedEvent(
+                correlationId,
+                this.getId(),
+                targetAccountId,
+                this.getCustomerId(),
+                targetCustomerId,
+                amount
         ));
     }
 }

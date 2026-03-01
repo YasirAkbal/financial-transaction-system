@@ -100,7 +100,12 @@ public class AccountService {
         Account account = accountRepository.findByIdWithLock(accountId)
                 .orElseThrow(() -> new EntityNotFoundException("Account not found"));
 
-        account.creditAccount(sourceId, sourceCustId, Money.of(amount, currency), corrId);
+        if (operationType == OperationType.COMPENSATE) {
+            account.compensateDebit(sourceId, sourceCustId, Money.of(amount, currency), corrId);
+        } else {
+            account.creditAccount(sourceId, sourceCustId, Money.of(amount, currency), corrId);
+        }
+
         accountRepository.save(account);
     }
 }

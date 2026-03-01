@@ -29,7 +29,6 @@ public class TransferCommandConsumer {
     private static final String ACCOUNT_EVENTS = "account-events";
 
     @KafkaHandler
-    @Transactional
     public void onDebitCommand(DebitCommand command) {
         log.info("[Command] DebitCommand is received. transactionId={}, accountId={}",
                 command.transactionId(), command.accountId());
@@ -61,7 +60,6 @@ public class TransferCommandConsumer {
     }
 
     @KafkaHandler
-    @Transactional
     public void onCreditCommand(CreditCommand command) {
         log.info("[Command] CreditCommand is received. transactionId={}, accountId={}",
                 command.transactionId(), command.accountId());
@@ -88,7 +86,6 @@ public class TransferCommandConsumer {
     }
 
     @KafkaHandler
-    @Transactional
     public void onCompensateDebitCommand(CompensateDebitCommand command) {
         log.info("[Command] CompensateDebitCommand is received. transactionId={}, accountId={}",
                 command.transactionId(), command.accountId());

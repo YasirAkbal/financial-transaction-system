@@ -5,10 +5,7 @@ import com.yasirakbal.moneytransferservice.domain.enums.TransferStep;
 import com.yasirakbal.moneytransferservice.domain.infrastructure.repository.TransactionRepository;
 import common.command.CompensateDebitCommand;
 import common.command.CreditCommand;
-import common.event.AccountCreditFailedIntegrationEvent;
-import common.event.AccountCreditedIntegrationEvent;
-import common.event.AccountDebitFailedIntegrationEvent;
-import common.event.AccountDebitedIntegrationEvent;
+import common.event.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -147,5 +144,18 @@ public class AccountEventConsumer {
                     return new EntityNotFoundException(
                             "Transaction not found for correlationId: " + correlationId);
                 });
+    }
+
+    @KafkaHandler
+    @Transactional
+    public void onAccountDebitCompensated(AccountDebitCompensatedIntegrationEvent event) {
+        log.info("[Saga] AccountDebitCompensated received. corrId={}", event.getCorrelationId());
+
+        Transaction transaction = findTransaction(event.getCorrelationId());
+
+        transaction.markCompensated();
+        transactionRepository.save(transaction);
+
+        log.info("[Saga] Compensation completed. transactionId={}", transaction.getId());
     }
 }

@@ -78,6 +78,10 @@ public class Transaction extends BaseAggregateRoot<Transaction> {
         this.currentStep = TransferStep.CREDIT_SENT;
     }
 
+    public void markCompensated() {
+        this.currentStep = TransferStep.COMPENSATED;
+    }
+
     public void complete(String correlationId) {
         this.status = TransferStatus.COMPLETED;
         this.currentStep = TransferStep.COMPLETED;

@@ -36,6 +36,8 @@ spring:
           AccountCreditedIntegrationEvent:common.event.AccountCreditedIntegrationEvent,
           AccountDebitFailedIntegrationEvent:common.event.AccountDebitFailedIntegrationEvent,
           AccountCreditFailedIntegrationEvent:common.event.AccountCreditFailedIntegrationEvent
+    listener:
+      delivery-attempt-threshold: 1
 
 eureka:
   client:
