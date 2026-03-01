@@ -35,8 +35,6 @@ spring:
           DebitCommand:common.command.DebitCommand,
           CreditCommand:common.command.CreditCommand,
           CompensateDebitCommand:common.command.CompensateDebitCommand
-    listener:
-      delivery-attempt-threshold: 1
 
 eureka:
   client:

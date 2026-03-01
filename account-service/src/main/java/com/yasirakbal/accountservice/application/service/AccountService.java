@@ -31,7 +31,6 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final AccountNumberGenerator accountNumberGenerator;
     private final IdempotencyService idempotencyService;
-    private static int count = 0;
 
     @Transactional
     public Account createAccount(CreateAccountRequest request) {
@@ -90,11 +89,6 @@ public class AccountService {
         } catch (DataIntegrityViolationException e) {
             log.info("Credit already processed for {}", transactionId);
             return;
-        }
-
-        if(count == 0) {
-            count++;
-            throw new IllegalArgumentException("Test case için yazdım xd");
         }
 
         Account account = accountRepository.findByIdWithLock(accountId)
