@@ -4,21 +4,28 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
 public class AccountDebitFailedIntegrationEvent extends BaseIntegrationEvent {
     private final UUID transactionId;
-    private final UUID accountId;
+    private final UUID sourceAccountId;
+    private final UUID targetAccountId;
+    private final BigDecimal amount;
+    private final String currency;
     private final String errorCode;
     private final String errorMessage;
 
-    public AccountDebitFailedIntegrationEvent(String correlationId, UUID transactionId,
-                                              UUID accountId, String errorCode, String errorMessage) {
+    public AccountDebitFailedIntegrationEvent(String correlationId, UUID transactionId, UUID sourceAccountId, UUID targetAccountId,
+                                              BigDecimal amount, String currency, String errorCode, String errorMessage) {
         super(correlationId);
         this.transactionId = transactionId;
-        this.accountId = accountId;
+        this.sourceAccountId = sourceAccountId;
+        this.targetAccountId = targetAccountId;
+        this.amount = amount;
+        this.currency = currency;
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;
     }
@@ -30,12 +37,18 @@ public class AccountDebitFailedIntegrationEvent extends BaseIntegrationEvent {
             @JsonProperty("correlationId") String correlationId,
             @JsonProperty("eventType") String eventType,
             @JsonProperty("transactionId") UUID transactionId,
-            @JsonProperty("accountId") UUID accountId,
+            @JsonProperty("sourceAccountId") UUID sourceAccountId,
+            @JsonProperty("targetAccountId") UUID targetAccountId,
+            @JsonProperty("amount") BigDecimal amount,
+            @JsonProperty("currency") String currency,
             @JsonProperty("errorCode") String errorCode,
             @JsonProperty("errorMessage") String errorMessage) {
         super(id, occurredOn, correlationId, eventType);
         this.transactionId = transactionId;
-        this.accountId = accountId;
+        this.sourceAccountId = sourceAccountId;
+        this.targetAccountId = targetAccountId;
+        this.amount = amount;
+        this.currency = currency;
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;
     }

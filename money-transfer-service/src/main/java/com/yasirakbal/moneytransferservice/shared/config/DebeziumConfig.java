@@ -1,4 +1,4 @@
-package com.yasirakbal.accountservice.shared.config;
+package com.yasirakbal.moneytransferservice.shared.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,12 +14,12 @@ public class DebeziumConfig {
                 .with("database.port", "5432")
                 .with("database.user", "username")
                 .with("database.password", "password")
-                .with("database.dbname", "account_service")
-                .with("topic.prefix", "account_service")
+                .with("database.dbname", "money_transfer_service")
+                .with("topic.prefix", "money_transfer_service")
                 .with("table.include.list", "public.outbox_messages")
                 .with("plugin.name", "pgoutput")
-                .with("slot.name", "account_service_slot")
-                .with("publication.name", "account_service_pub")
+                .with("slot.name", "money_transfer_slot")
+                .with("publication.name", "money_transfer_pub")
                 .with("offset.storage", "org.apache.kafka.connect.storage.FileOffsetBackingStore")
                 .with("offset.storage.file.filename", "/tmp/debezium-offsets.dat")
                 .with("offset.flush.interval.ms", "1000")

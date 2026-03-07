@@ -1,4 +1,4 @@
-package com.yasirakbal.moneytransferservice.domain.infrastructure.repository;
+package com.yasirakbal.moneytransferservice.domain.infrastructure.transaction;
 
 import com.yasirakbal.moneytransferservice.domain.aggregate.Transaction;
 import jakarta.persistence.LockModeType;
