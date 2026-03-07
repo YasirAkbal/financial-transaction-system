@@ -1,8 +1,9 @@
 package com.yasirakbal.moneytransferservice.application.consumer;
 
+import com.yasirakbal.moneytransferservice.application.service.OutboxService;
 import com.yasirakbal.moneytransferservice.domain.aggregate.Transaction;
 import com.yasirakbal.moneytransferservice.domain.enums.TransferStep;
-import com.yasirakbal.moneytransferservice.domain.infrastructure.repository.TransactionRepository;
+import com.yasirakbal.moneytransferservice.domain.infrastructure.transaction.TransactionRepository;
 import common.command.CompensateDebitCommand;
 import common.command.CreditCommand;
 import common.event.*;
@@ -22,7 +23,7 @@ import org.springframework.stereotype.Component;
 public class AccountEventConsumer {
 
     private final TransactionRepository transactionRepository;
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final OutboxService outboxService;
 
     private static final String TRANSFER_COMMANDS = "transfer-commands";
 
@@ -42,6 +43,7 @@ public class AccountEventConsumer {
         transaction.markCreditSent();
         transactionRepository.save(transaction);
 
+
         var creditCommand = new CreditCommand(
                 transaction.getId(),
                 transaction.getTargetAccountId(),
@@ -51,12 +53,13 @@ public class AccountEventConsumer {
                 transaction.getAmount().currency().toString(),
                 event.getCorrelationId()
         );
-
-        kafkaTemplate.send(
-                TRANSFER_COMMANDS,
+        outboxService.saveOutbox(
+                "transfer-commands",
                 transaction.getTargetAccountId().toString(),
+                "CreditCommand",
                 creditCommand
         );
+
 
         log.info("[Saga] CreditCommand sent. transactionId={}, targetAccount={}",
                 transaction.getId(), transaction.getTargetAccountId());
@@ -78,6 +81,22 @@ public class AccountEventConsumer {
         transaction.complete(event.getCorrelationId());
         transactionRepository.save(transaction);
 
+
+        var integrationEvent = new MoneyTransferCompletedIntegrationEvent(
+                event.getCorrelationId(),
+                transaction.getId(),
+                event.getDebitedCustomerId(),
+                event.getCreditedAccountId(),
+                event.getAmount(),
+                event.getCurrency().toString()
+        );
+        outboxService.saveOutbox(
+                "transfer-events",
+                transaction.getId().toString(),
+                "MoneyTransferCompletedIntegrationEvent",
+                integrationEvent
+        );
+
         log.info("[Saga] Transfer is completed. transactionId={}", transaction.getId());
     }
 
@@ -97,6 +116,25 @@ public class AccountEventConsumer {
         );
         transactionRepository.save(transaction);
 
+
+        var integrationEvent = new MoneyTransferFailedIntegrationEvent(
+                event.getCorrelationId(),
+                event.getTransactionId(),
+                event.getSourceAccountId(),
+                event.getTargetAccountId(),
+                event.getAmount(),
+                event.getCurrency(),
+                event.getErrorCode(),
+                event.getErrorMessage(),
+                "ACCOUNT_DEBIT"
+        );
+        outboxService.saveOutbox(
+                "transfer-events",
+                transaction.getId().toString(),
+                "MoneyTransferFailedIntegrationEvent",
+                integrationEvent
+        );
+
         log.warn("[Saga] Transfer is unsuccessful (in debit step). transactionId={}", transaction.getId());
     }
 
@@ -108,6 +146,34 @@ public class AccountEventConsumer {
 
         Transaction transaction = findTransaction(event.getCorrelationId());
 
+        transaction.fail(
+                event.getErrorCode(),
+                event.getErrorMessage(),
+                "ACCOUNT_CREDIT",
+                event.getCorrelationId()
+        );
+        transactionRepository.save(transaction);
+
+
+        var integrationEvent = new MoneyTransferFailedIntegrationEvent(
+                event.getCorrelationId(),
+                event.getTransactionId(),
+                event.getSourceAccountId(),
+                event.getTargetAccountId(),
+                event.getAmount(),
+                event.getCurrency(),
+                event.getErrorCode(),
+                event.getErrorMessage(),
+                "ACCOUNT_CREDIT"
+        );
+        outboxService.saveOutbox(
+                "transfer-events",
+                transaction.getId().toString(),
+                "MoneyTransferFailedIntegrationEvent",
+                integrationEvent
+        );
+
+
         var compensateCommand = new CompensateDebitCommand(
                 transaction.getId(),
                 transaction.getSourceAccountId(),
@@ -117,20 +183,13 @@ public class AccountEventConsumer {
                 transaction.getAmount().currency().toString(),
                 event.getCorrelationId()
         );
-
-        transaction.fail(
-                event.getErrorCode(),
-                event.getErrorMessage(),
-                "ACCOUNT_CREDIT",
-                event.getCorrelationId()
-        );
-        transactionRepository.save(transaction);
-
-        kafkaTemplate.send(
-                TRANSFER_COMMANDS,
+        outboxService.saveOutbox(
+                "transfer-commands",
                 transaction.getSourceAccountId().toString(),
+                "CompensateDebitCommand",
                 compensateCommand
         );
+
 
         log.error("[Saga] CompensateDebitCommand sent. transactionId={}", transaction.getId());
     }

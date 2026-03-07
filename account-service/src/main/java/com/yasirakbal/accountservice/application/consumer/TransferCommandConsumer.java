@@ -94,7 +94,7 @@ public class TransferCommandConsumer {
                     (command.transactionId().toString() + "_COMPENSATE").getBytes()
             );
 
-            accountService.compensateCredit(
+            accountService.compensateDebit(
                     compensateTransactionId,
                     command.accountId(),
                     command.targetAccountId(),
@@ -124,6 +124,9 @@ public class TransferCommandConsumer {
                 command.correlationId(),
                 command.transactionId(),
                 command.accountId(),
+                command.targetAccountId(),
+                command.amount(),
+                command.currency(),
                 errorCode,
                 message
         );
@@ -134,7 +137,10 @@ public class TransferCommandConsumer {
         var failedEvent = new AccountCreditFailedIntegrationEvent(
                 command.correlationId(),
                 command.transactionId(),
+                command.sourceAccountId(),
                 command.accountId(),
+                command.amount(),
+                command.currency(),
                 errorCode,
                 message
         );

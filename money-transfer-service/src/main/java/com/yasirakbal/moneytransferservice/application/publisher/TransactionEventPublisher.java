@@ -23,8 +23,8 @@ public class TransactionEventPublisher {
     private static final String TRANSFER_COMMANDS = "transfer-commands";
     private static final String TRANSFER_EVENTS = "transfer-events";
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void onTransactionInitiated(TransactionInitiatedEvent event) {
+    //@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void onTransactionInitiated(TransactionInitiatedEvent event) { //Service'e taşı
 
         var debitCommand = new DebitCommand(
                 event.getTransactionId(),
@@ -46,8 +46,8 @@ public class TransactionEventPublisher {
                 event.getTransactionId(), event.getSourceAccountId());
     }
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void onTransactionCompleted(TransactionCompletedEvent event) {
+   // @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void onTransactionCompleted(TransactionCompletedEvent event) { //Consumer'a taşı
         var integrationEvent = new MoneyTransferCompletedIntegrationEvent(
                 event.getCorrelationId(),
                 event.getTransactionId(),
@@ -62,8 +62,8 @@ public class TransactionEventPublisher {
         log.info("[Saga] Transfer completed. transactionId={}", integrationEvent.getTransactionId());
     }
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void onTransactionFailed(TransactionFailedEvent event) {
+    //@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void onTransactionFailed(TransactionFailedEvent event) { //Consumer'a taşı
         var integrationEvent = new MoneyTransferFailedIntegrationEvent(
                 event.getCorrelationId(),
                 event.getTransactionId(),

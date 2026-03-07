@@ -1,8 +1,9 @@
 package com.yasirakbal.moneytransferservice.application.service;
 
 import com.yasirakbal.moneytransferservice.domain.aggregate.Transaction;
-import com.yasirakbal.moneytransferservice.domain.infrastructure.repository.TransactionRepository;
+import com.yasirakbal.moneytransferservice.domain.infrastructure.transaction.TransactionRepository;
 import com.yasirakbal.moneytransferservice.domain.valueobject.Money;
+import common.command.DebitCommand;
 import common.constant.GeneralConstants;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
@@ -21,6 +22,7 @@ import java.util.UUID;
 public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final FraudService fraudService;
+    private final OutboxService outboxService;
 
     @Transactional
     public Transaction makeTransaction(
@@ -47,9 +49,26 @@ public class TransactionService {
                 Money.of(amount, currency),
                 corrId
         );
-
         transaction.markDebitSent();
         transactionRepository.save(transaction);
+
+
+        var debitCommand = new DebitCommand(
+                transaction.getId(),
+                sourceAccountId,
+                targetAccountId,
+                targetCustomerId,
+                amount,
+                currency,
+                corrId
+        );
+        outboxService.saveOutbox(
+                "transfer-commands",
+                sourceAccountId.toString(),
+                "DebitCommand",
+                debitCommand
+        );
+
 
         return transaction;
     }
