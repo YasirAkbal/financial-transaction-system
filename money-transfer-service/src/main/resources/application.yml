@@ -40,7 +40,8 @@ spring:
           AccountDebitedIntegrationEvent:common.event.AccountDebitedIntegrationEvent,
           AccountCreditedIntegrationEvent:common.event.AccountCreditedIntegrationEvent,
           AccountDebitFailedIntegrationEvent:common.event.AccountDebitFailedIntegrationEvent,
-          AccountCreditFailedIntegrationEvent:common.event.AccountCreditFailedIntegrationEvent
+          AccountCreditFailedIntegrationEvent:common.event.AccountCreditFailedIntegrationEvent,
+          AccountDebitCompensatedIntegrationEvent:common.event.AccountDebitCompensatedIntegrationEvent
 
 eureka:
   client:
