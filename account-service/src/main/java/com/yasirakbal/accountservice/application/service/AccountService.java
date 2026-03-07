@@ -1,15 +1,20 @@
 package com.yasirakbal.accountservice.application.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yasirakbal.accountservice.application.dto.CreateAccountRequest;
 import com.yasirakbal.accountservice.domain.aggregate.Account;
 import com.yasirakbal.accountservice.domain.infrastructure.idempotency.IdempotencyService;
 import com.yasirakbal.accountservice.domain.infrastructure.idempotency.OperationType;
-import com.yasirakbal.accountservice.domain.infrastructure.idempotency.ProcessedMessage;
-import com.yasirakbal.accountservice.domain.infrastructure.repository.AccountRepository;
-import com.yasirakbal.accountservice.domain.infrastructure.idempotency.ProcessedMessageRepository;
+import com.yasirakbal.accountservice.domain.infrastructure.idempotency.AccountRepository;
+import com.yasirakbal.accountservice.domain.infrastructure.outbox.OutboxMessage;
+import com.yasirakbal.accountservice.domain.infrastructure.outbox.OutboxMessageRepository;
 import com.yasirakbal.accountservice.domain.valueobject.Money;
 import com.yasirakbal.accountservice.shared.util.AccountNumberGenerator;
 import common.constant.GeneralConstants;
+import common.event.AccountCreditedIntegrationEvent;
+import common.event.AccountDebitCompensatedIntegrationEvent;
+import common.event.AccountDebitedIntegrationEvent;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Currency;
 import java.util.List;
 import java.util.UUID;
@@ -32,6 +36,8 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final AccountNumberGenerator accountNumberGenerator;
     private final IdempotencyService idempotencyService;
+    private final OutboxMessageRepository outboxMessageRepository;
+    private final ObjectMapper objectMapper;
 
     @Transactional
     public Account createAccount(CreateAccountRequest request) {
@@ -69,24 +75,23 @@ public class AccountService {
 
         Account account = accountRepository.findByIdWithLock(accountId)
                 .orElseThrow(() -> new EntityNotFoundException("Account not found"));
-
         account.debitAccount(targetId, targetCustId, Money.of(amount, currency), corrId);
         accountRepository.save(account);
+
+
+        var integrationEvent = new AccountDebitedIntegrationEvent(
+                account.getId(), targetId,
+                account.getCustomerId(), targetCustId,
+                amount, account.getBalance().currency(),
+                corrId
+        );
+        saveOutbox(accountId.toString(), "AccountDebitedIntegrationEvent", integrationEvent);
     }
 
     @Transactional
     public void credit(UUID transactionId, UUID accountId, UUID sourceId, UUID sourceCustId, BigDecimal amount, String currency, String corrId) {
-        credit(transactionId, accountId, sourceId, sourceCustId, amount, currency, corrId, OperationType.CREDIT);
-    }
-
-    @Transactional
-    public void compensateCredit(UUID transactionId, UUID accountId, UUID sourceId, UUID sourceCustId, BigDecimal amount, String currency, String corrId) {
-        credit(transactionId, accountId, sourceId, sourceCustId, amount, currency, corrId, OperationType.COMPENSATE);
-    }
-
-    private void credit(UUID transactionId, UUID accountId, UUID sourceId, UUID sourceCustId, BigDecimal amount, String currency, String corrId, OperationType operationType) {
         try {
-            idempotencyService.record(corrId, operationType, "account-service");
+            idempotencyService.record(corrId, OperationType.CREDIT, "account-service");
         } catch (DataIntegrityViolationException e) {
             log.info("Credit already processed for {}", transactionId);
             return;
@@ -94,17 +99,56 @@ public class AccountService {
 
         Account account = accountRepository.findByIdWithLock(accountId)
                 .orElseThrow(() -> new EntityNotFoundException("Account not found"));
+        account.creditAccount(sourceId, sourceCustId, Money.of(amount, currency), corrId);
+        accountRepository.save(account);
 
-        if (operationType == OperationType.COMPENSATE) {
-            account.compensateDebit(sourceId, sourceCustId, Money.of(amount, currency), corrId);
-        } else {
-            account.creditAccount(sourceId, sourceCustId, Money.of(amount, currency), corrId);
+        var integrationEvent = new AccountCreditedIntegrationEvent(
+                account.getId(), sourceId,
+                account.getCustomerId(), sourceCustId,
+                amount, account.getBalance().currency(),
+                corrId
+        );
+        saveOutbox(accountId.toString(), "AccountCreditedIntegrationEvent", integrationEvent);
+    }
+
+    @Transactional
+    public void compensateDebit(UUID transactionId, UUID accountId, UUID sourceId, UUID sourceCustId, BigDecimal amount, String currency, String corrId) {
+        try {
+            idempotencyService.record(corrId, OperationType.COMPENSATE, "account-service");
+        } catch (DataIntegrityViolationException e) {
+            log.info("Credit already compensated for {}", transactionId);
+            return;
         }
 
+        Account account = accountRepository.findByIdWithLock(accountId)
+                .orElseThrow(() -> new EntityNotFoundException("Account not found"));
+        account.compensateDebit(sourceId, sourceCustId, Money.of(amount, currency), corrId);
         accountRepository.save(account);
+
+        var integrationEvent = new AccountDebitCompensatedIntegrationEvent(
+                corrId,
+                sourceId,
+                account.getId(),
+                amount,
+                account.getBalance().currency()
+        );
+        saveOutbox(accountId.toString(), "AccountDebitCompensatedIntegrationEvent", integrationEvent);
     }
 
     public List<Account> getCustomerAccounts(UUID customerId) {
         return accountRepository.findByCustomerId(customerId);
+    }
+
+    private void saveOutbox(String aggregateId, String eventType, Object event) {
+        try {
+            outboxMessageRepository.save(OutboxMessage.builder()
+                    .topic("account-events")
+                    .aggregateId(aggregateId)
+                    .eventType(eventType)
+                    .payload(objectMapper.writeValueAsString(event))
+                    .build());
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to serialize outbox event", e);
+        }
     }
 }

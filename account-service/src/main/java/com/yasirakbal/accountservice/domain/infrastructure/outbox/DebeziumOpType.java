@@ -1,4 +1,4 @@
-package com.yasirakbal.accountservice.shared.enums;
+package com.yasirakbal.accountservice.domain.infrastructure.outbox;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

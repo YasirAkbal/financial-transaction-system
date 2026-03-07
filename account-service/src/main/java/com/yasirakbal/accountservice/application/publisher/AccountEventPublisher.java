@@ -15,13 +15,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-@Component
+//@Component
 public class AccountEventPublisher {
     @Autowired
     private KafkaTemplate<String, Object> kafka;
     private static final String TOPIC = "account-events";
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    //@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void publishToKafka(AccountCreatedEvent domainEvent) {
 
         var integrationEvent = new AccountCreatedIntegrationEvent(
@@ -33,7 +33,7 @@ public class AccountEventPublisher {
         kafka.send(TOPIC, domainEvent.getAccountId().toString(), integrationEvent);
     }
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    ///@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void publishToKafka(AccountCreditedEvent domainEvent) {
 
         var integrationEvent = new AccountCreditedIntegrationEvent(
@@ -49,7 +49,7 @@ public class AccountEventPublisher {
         kafka.send(TOPIC, domainEvent.getCreditedAccountId().toString(), integrationEvent);
     }
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    //@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void publishToKafka(AccountDebitedEvent domainEvent) {
 
         var integrationEvent = new AccountDebitedIntegrationEvent(
@@ -65,7 +65,7 @@ public class AccountEventPublisher {
         kafka.send(TOPIC, domainEvent.getDebitedAccountId().toString(), integrationEvent);
     }
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    //@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void publishToKafka(AccountDebitCompensatedEvent domainEvent) {
         var integrationEvent = new AccountDebitCompensatedIntegrationEvent(
                 domainEvent.getCorrelationId(),

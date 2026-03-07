@@ -1,4 +1,4 @@
-package com.yasirakbal.accountservice.domain.infrastructure.repository;
+package com.yasirakbal.accountservice.domain.infrastructure.idempotency;
 
 import com.yasirakbal.accountservice.domain.aggregate.Account;
 import jakarta.persistence.LockModeType;

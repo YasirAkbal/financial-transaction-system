@@ -1,4 +1,4 @@
-package com.yasirakbal.accountservice.shared.dto;
+package com.yasirakbal.accountservice.domain.infrastructure.outbox;
 
 public record DebeziumOutboxRecord(String id, String topic, String aggregateId,
                                    String eventType, String payload) {}

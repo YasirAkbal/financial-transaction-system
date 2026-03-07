@@ -94,7 +94,7 @@ public class TransferCommandConsumer {
                     (command.transactionId().toString() + "_COMPENSATE").getBytes()
             );
 
-            accountService.compensateCredit(
+            accountService.compensateDebit(
                     compensateTransactionId,
                     command.accountId(),
                     command.targetAccountId(),

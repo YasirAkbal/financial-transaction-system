@@ -1,4 +1,4 @@
-package com.yasirakbal.accountservice.shared.entity;
+package com.yasirakbal.accountservice.domain.infrastructure.outbox;
 
 import jakarta.persistence.*;
 import lombok.*;
