@@ -76,6 +76,10 @@ AccountCreditFailed → CompensateDebitCommand → AccountDebitCompensated
 
 Every Kafka consumer operation is guarded by a `processed_messages` table (`transactionId + operationType` unique constraint). Duplicate messages are silently skipped, making all operations safe to retry.
 
+### Outbox Pattern
+
+At-least-once delivery is guaranteed by applying the Outbox Pattern with transaction log tailing. Debezium is used to capture insert operations in the outbox tables.
+
 ### Pessimistic Locking
 
 Account balance updates use `SELECT ... FOR UPDATE` to prevent race conditions under concurrent transfers.
@@ -138,11 +142,11 @@ GET http://localhost:8080/api/v1/ledger
 
 ## What's Coming
 
-- **Outbox Pattern** — Replace `@TransactionalEventListener` with a proper transactional outbox to guarantee at-least-once delivery even on application crashes between DB commit and Kafka publish
-- **Observability** — Distributed tracing (OpenTelemetry/Zipkin), structured logging, and metrics (Micrometer/Prometheus)
-- **Tests** — Unit tests for domain logic, integration tests with Testcontainers
-- **Config & Gateway** — Config server to serve per-service YAMLs from a Git repo; gateway to add auth, rate limiting, and request validation
-- **Discovery** — Eureka configured for production-grade peer replication
+- [x] **Outbox Pattern** — Replace `@TransactionalEventListener` with a proper transactional outbox to guarantee at-least-once delivery even on application crashes between DB commit and Kafka publish
+- [ ] **Observability** — Distributed tracing (OpenTelemetry/Zipkin), structured logging, and metrics (Micrometer/Prometheus)
+- [ ] **Tests** — Unit tests for domain logic, integration tests with Testcontainers
+- [ ] **Config & Gateway** — Config server to serve per-service YAMLs from a Git repo; gateway to add auth, rate limiting, and request validation
+- [ ] **Discovery** — Eureka configured for production-grade peer replication
 
 ---
 
